@@ -10,5 +10,4 @@ namespace TalentApp
     public partial class App : Application
     {
     }
-
 }

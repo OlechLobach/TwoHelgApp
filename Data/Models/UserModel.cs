@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Data.Models
 {
-    internal class UserModel
+    public class UserModel
     {
+        [Key]
+        public int Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Location { get; set; }
+        public decimal? CurrentSalary { get; set; }
+        public decimal? DesiredSalary { get; set; }
+        public string CurrentJob { get; set; }
+        public string DesiredJob { get; set; }
+        public string PhoneNumber { get; set; }
     }
 }
