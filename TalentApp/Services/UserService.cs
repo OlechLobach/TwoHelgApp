@@ -1,6 +1,6 @@
 ﻿using JobSeekerApp.Models;
 using JobSeekerApp.Repositories;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace JobSeekerApp.Services
 {
@@ -13,29 +13,10 @@ namespace JobSeekerApp.Services
             _userRepository = userRepository;
         }
 
-        public UserModel GetUserById(int userId)
+        // Метод для збереження резюме
+        public async Task<bool> SaveResumeAsync(ResumeModel resume)
         {
-            return _userRepository.GetUserById(userId);
-        }
-
-        public List<UserModel> GetAllUsers()
-        {
-            return _userRepository.GetAllUsers();
-        }
-
-        public void UpdateUser(UserModel user)
-        {
-            _userRepository.UpdateUser(user);
-        }
-
-        public void DeleteUser(int userId)
-        {
-            _userRepository.DeleteUser(userId);
-        }
-
-        public void SaveResume(ResumeModel resume)
-        {
-            _userRepository.SaveResume(resume);
+            return await _userRepository.SaveResumeAsync(resume);
         }
     }
 }

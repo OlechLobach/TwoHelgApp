@@ -1,22 +1,27 @@
-﻿using JobSeekerApp.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using JobSeekerApp.Models;
 using JobSeekerApp.Repositories;
 
 namespace JobSeekerApp.Services
 {
     public class JobService
     {
-        private readonly UserRepository _userRepository;
+        private readonly JobRepository _jobRepository;
 
-        public JobService(UserRepository userRepository)
+        public JobService(JobRepository jobRepository)
         {
-            _userRepository = userRepository;
+            _jobRepository = jobRepository;
         }
 
-        public void SaveJob(JobModel job)
+        public async Task<bool> AddJobAsync(JobModel job)
         {
-            _userRepository.SaveJob(job);
+            return await _jobRepository.AddJobAsync(job);
         }
 
-        // Інші методи для управління роботами можна додати сюди
+        public async Task<IEnumerable<JobModel>> GetAllJobsAsync()
+        {
+            return await _jobRepository.GetAllJobsAsync();
+        }
     }
 }

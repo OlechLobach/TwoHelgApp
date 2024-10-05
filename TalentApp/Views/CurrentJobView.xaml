@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="JobSeekerApp.Views.CurrentJobView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="300" Width="400">
+    <Grid>
+        <StackPanel Margin="20">
+            <TextBlock Text="Current Job Information" FontSize="24" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Current Job Title" />
+            <TextBox x:Name="JobTitleTextBox" Width="300" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Current Salary" />
+            <TextBox x:Name="SalaryTextBox" Width="300" Margin="0,0,0,20"/>
+
+            <Button Content="Next" Width="100" Click="NextButton_Click"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

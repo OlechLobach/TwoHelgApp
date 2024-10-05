@@ -1,5 +1,8 @@
 ﻿using JobSeekerApp.Data;
 using JobSeekerApp.Models;
+using Microsoft.EntityFrameworkCore; // Необхідно для використання асинхронних методів
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Linq;
 
 namespace JobSeekerApp.Repositories
@@ -13,31 +16,59 @@ namespace JobSeekerApp.Repositories
             _context = context;
         }
 
-        public void AddJob(JobModel job)
+        // Асинхронний метод для додавання роботи
+        public async Task<bool> AddJobAsync(JobModel job)
         {
-            _context.Jobs.Add(job);
-            _context.SaveChanges();
+            try
+            {
+                await _context.Jobs.AddAsync(job);
+                await _context.SaveChangesAsync();
+                return true; // Повертаємо true, якщо додавання успішне
+            }
+            catch
+            {
+                return false; // Повертаємо false у випадку помилки
+            }
         }
 
-        public JobModel GetJobById(int jobId)
+        // Метод для отримання роботи за ідентифікатором
+        public async Task<JobModel> GetJobByIdAsync(int jobId)
         {
-            return _context.Jobs.FirstOrDefault(j => j.Id == jobId);
+            return await _context.Jobs.FirstOrDefaultAsync(j => j.Id == jobId);
         }
 
-        public void UpdateJob(JobModel job)
+        // Асинхронний метод для оновлення роботи
+        public async Task<bool> UpdateJobAsync(JobModel job)
         {
-            _context.Jobs.Update(job);
-            _context.SaveChanges();
+            try
+            {
+                _context.Jobs.Update(job);
+                await _context.SaveChangesAsync();
+                return true; // Повертаємо true, якщо оновлення успішне
+            }
+            catch
+            {
+                return false; // Повертаємо false у випадку помилки
+            }
         }
 
-        public void DeleteJob(int jobId)
+        // Метод для видалення роботи
+        public async Task<bool> DeleteJobAsync(int jobId)
         {
-            var job = GetJobById(jobId);
+            var job = await GetJobByIdAsync(jobId);
             if (job != null)
             {
                 _context.Jobs.Remove(job);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+                return true; // Повертаємо true, якщо видалення успішне
             }
+            return false; // Повертаємо false, якщо робота не знайдена
+        }
+
+        // Асинхронний метод для отримання всіх робіт
+        public async Task<IEnumerable<JobModel>> GetAllJobsAsync()
+        {
+            return await _context.Jobs.ToListAsync();
         }
     }
 }

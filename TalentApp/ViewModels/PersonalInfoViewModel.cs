@@ -2,6 +2,8 @@
 using JobSeekerApp.Commands;
 using JobSeekerApp.Models;
 using JobSeekerApp.Repositories;
+using System.Threading.Tasks;
+using System;
 
 namespace JobSeekerApp.ViewModels
 {
@@ -12,6 +14,8 @@ namespace JobSeekerApp.ViewModels
         private string _firstName;
         private string _lastName;
         private string _location;
+        private bool _isSaving; // Для відстеження стану збереження
+        private string _statusMessage; // Для повідомлень про статус
 
         public string FirstName
         {
@@ -43,17 +47,42 @@ namespace JobSeekerApp.ViewModels
             }
         }
 
+        public bool IsSaving
+        {
+            get => _isSaving;
+            set
+            {
+                _isSaving = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set
+            {
+                _statusMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand NextCommand { get; private set; }
 
         public PersonalInfoViewModel(UserRepository userRepository)
         {
             _userRepository = userRepository;
-            NextCommand = new RelayCommand(OnNext);
+            NextCommand = new RelayCommand(async (param) => await OnNext(param));
         }
 
-        private void OnNext(object parameter)
+        private async Task OnNext(object parameter)
         {
-            // Зберігаємо особисті дані
+            if (string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName) || string.IsNullOrWhiteSpace(Location))
+            {
+                StatusMessage = "Please fill in all fields.";
+                return;
+            }
+
             var userModel = new UserModel
             {
                 FirstName = FirstName,
@@ -61,8 +90,29 @@ namespace JobSeekerApp.ViewModels
                 Location = Location
             };
 
-            _userRepository.SaveUser(userModel);
-            // Перехід до наступного кроку
+            IsSaving = true; // Встановлюємо стан збереження в true
+
+            try
+            {
+                bool isSuccess = await _userRepository.AddUserAsync(userModel); // Викликаємо AddUserAsync
+                if (isSuccess)
+                {
+                    StatusMessage = "Personal information saved successfully.";
+                    // Додаткові дії, наприклад, перехід до наступного кроку
+                }
+                else
+                {
+                    StatusMessage = "Error saving personal information. Please try again.";
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error: {ex.Message}"; // Відображаємо повідомлення про помилку
+            }
+            finally
+            {
+                IsSaving = false; // Завершуємо стан збереження
+            }
         }
     }
 }

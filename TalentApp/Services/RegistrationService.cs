@@ -1,4 +1,6 @@
-﻿using JobSeekerApp.Models;
+﻿using System;
+using System.Threading.Tasks;
+using JobSeekerApp.Models;
 using JobSeekerApp.Repositories;
 
 namespace JobSeekerApp.Services
@@ -12,11 +14,20 @@ namespace JobSeekerApp.Services
             _userRepository = userRepository;
         }
 
-        public void RegisterUser(UserModel user)
+        public async Task<bool> RegisterUserAsync(UserModel user)
         {
-            // Логіка перевірки та збереження користувача
-            _userRepository.SaveUser(user);
-            // Можливо, додайте інші кроки, такі як верифікація
+            try
+            {
+                // Логіка для реєстрації користувача
+                await _userRepository.AddUserAsync(user);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Обробка помилки
+                Console.WriteLine($"Error registering user: {ex.Message}");
+                return false;
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Windows.Input;
 using JobSeekerApp.Commands;
 using JobSeekerApp.Models;
 using JobSeekerApp.Repositories;
@@ -88,7 +89,7 @@ namespace JobSeekerApp.ViewModels
             PreviousCommand = new RelayCommand(OnPrevious);
         }
 
-        private void OnNext(object parameter)
+        private async void OnNext(object parameter)
         {
             if (CurrentStep == "ResumeUpload")
             {
@@ -98,19 +99,19 @@ namespace JobSeekerApp.ViewModels
             else if (CurrentStep == "PersonalInfo")
             {
                 // Зберігаємо особисту інформацію користувача
-                _userRepository.SaveUser(_userModel); // Заміна на SaveUser
+                await _userRepository.AddUserAsync(_userModel); // Заміна на AddUserAsync
                 CurrentStep = "CurrentJob";
             }
             else if (CurrentStep == "CurrentJob")
             {
                 // Зберігаємо дані про поточну роботу
-                _userRepository.SaveUser(_userModel); // Заміна на SaveUser
+                await _userRepository.AddUserAsync(_userModel); // Заміна на AddUserAsync
                 CurrentStep = "DesiredJob";
             }
             else if (CurrentStep == "DesiredJob")
             {
                 // Завершуємо реєстрацію
-                _userRepository.SaveUser(_userModel); // Заміна на SaveUser
+                await _userRepository.AddUserAsync(_userModel); // Заміна на AddUserAsync
                 RegistrationCompleted?.Invoke(); // Виклик події завершення реєстрації
             }
         }

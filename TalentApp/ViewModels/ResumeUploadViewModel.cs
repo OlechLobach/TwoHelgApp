@@ -5,12 +5,14 @@ using System.IO;
 using JobSeekerApp.Repositories;
 using JobSeekerApp.Models;
 using System.Windows; // Необхідно для використання MessageBox
+using System.Threading.Tasks; // Необхідно для використання Task
 
 namespace JobSeekerApp.ViewModels
 {
     public class ResumeUploadViewModel : BaseViewModel
     {
         private readonly UserRepository _userRepository;
+        private int _currentUserId; // Зберігаємо ідентифікатор користувача
         private string _resumeFilePath;
 
         public string ResumeFilePath
@@ -26,10 +28,11 @@ namespace JobSeekerApp.ViewModels
         public ICommand UploadCommand { get; private set; }
         public ICommand BrowseCommand { get; private set; }
 
-        public ResumeUploadViewModel(UserRepository userRepository)
+        public ResumeUploadViewModel(UserRepository userRepository, int currentUserId)
         {
             _userRepository = userRepository;
-            UploadCommand = new RelayCommand(OnUpload);
+            _currentUserId = currentUserId; // Присвоюємо ідентифікатор користувача
+            UploadCommand = new RelayCommand(async (param) => await OnUpload(param)); // Виклик асинхронного методу
             BrowseCommand = new RelayCommand(OnBrowse);
         }
 
@@ -47,7 +50,7 @@ namespace JobSeekerApp.ViewModels
             }
         }
 
-        private void OnUpload(object parameter)
+        private async Task OnUpload(object parameter)
         {
             if (!string.IsNullOrEmpty(ResumeFilePath))
             {
@@ -55,15 +58,27 @@ namespace JobSeekerApp.ViewModels
                 {
                     // Логіка для завантаження резюме
                     byte[] resumeData = File.ReadAllBytes(ResumeFilePath);
+
                     var resumeModel = new ResumeModel
                     {
-                        FileName = Path.GetFileName(ResumeFilePath), // Зберігаємо ім'я файлу
+                        UserId = _currentUserId,
+                        FileName = Path.GetFileName(ResumeFilePath),
                         ResumeFile = resumeData
                     };
 
+                    // Логування перед викликом методу
+                    Console.WriteLine($"Attempting to save resume for UserId: {resumeModel.UserId}, FileName: {resumeModel.FileName}");
+
                     // Виклик методу репозиторію для збереження резюме
-                    _userRepository.SaveResume(resumeModel);
-                    MessageBox.Show("Резюме успішно завантажено!", "Успіх", MessageBoxButton.OK, MessageBoxImage.Information);
+                    bool success = await _userRepository.SaveResumeAsync(resumeModel);
+                    if (success)
+                    {
+                        MessageBox.Show("Резюме успішно завантажено!", "Успіх", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Не вдалося завантажити резюме.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -72,7 +87,6 @@ namespace JobSeekerApp.ViewModels
             }
             else
             {
-                // Сповіщення про помилку, якщо файл не вибрано
                 MessageBox.Show("Будь ласка, виберіть файл резюме перед завантаженням.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

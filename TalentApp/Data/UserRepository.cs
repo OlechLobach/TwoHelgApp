@@ -1,7 +1,10 @@
 ﻿using JobSeekerApp.Data;
 using JobSeekerApp.Models;
-using System.Collections.Generic; // Додайте цей using
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace JobSeekerApp.Repositories
 {
@@ -14,79 +17,121 @@ namespace JobSeekerApp.Repositories
             _context = context;
         }
 
-        public void AddUser(UserModel user)
+        // Асинхронний метод для додавання користувача
+        public async Task<bool> AddUserAsync(UserModel user)
         {
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            try
+            {
+                await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
+                return true; // Повертаємо true, якщо додавання успішне
+            }
+            catch (Exception ex)
+            {
+                // Логіка обробки помилок
+                Console.WriteLine($"Error adding user: {ex.Message}");
+                return false; // Повертаємо false у випадку помилки
+            }
         }
 
-        public UserModel GetUserById(int userId)
+        // Асинхронний метод для отримання користувача за ID
+        public async Task<UserModel> GetUserByIdAsync(int userId)
         {
-            return _context.Users.FirstOrDefault(u => u.Id == userId);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
         }
 
-        public void UpdateUser(UserModel user)
+        // Асинхронний метод для оновлення користувача
+        public async Task<bool> UpdateUserAsync(UserModel user)
         {
-            _context.Users.Update(user);
-            _context.SaveChanges();
+            try
+            {
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+                return true; // Повертаємо true, якщо оновлення успішне
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating user: {ex.Message}");
+                return false; // Повертаємо false у випадку помилки
+            }
         }
 
-        public void DeleteUser(int userId)
+        // Асинхронний метод для видалення користувача
+        public async Task<bool> DeleteUserAsync(int userId)
         {
-            var user = GetUserById(userId);
+            var user = await GetUserByIdAsync(userId);
             if (user != null)
             {
                 _context.Users.Remove(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+                return true; // Повертаємо true, якщо видалення успішне
             }
+            return false; // Повертаємо false, якщо користувача не знайдено
         }
 
-        public void SaveUser(UserModel user)
+        // Асинхронний метод для отримання всіх користувачів
+        public async Task<List<UserModel>> GetAllUsersAsync()
+        {
+            return await _context.Users.ToListAsync(); // Повертаємо список усіх користувачів
+        }
+
+        // Асинхронний метод для збереження резюме
+        public async Task<bool> SaveResumeAsync(ResumeModel resume)
         {
             try
             {
-                _context.Users.Add(user);
-                _context.SaveChanges();
+                if (resume.ResumeFile == null || resume.ResumeFile.Length == 0)
+                {
+                    Console.WriteLine("Resume file is empty or null.");
+                    return false; // Файл порожній
+                }
+
+                Console.WriteLine($"Attempting to save resume for UserId: {resume.UserId}, FileName: {resume.FileName}");
+
+                await _context.Resumes.AddAsync(resume);
+                Console.WriteLine("Resume added to context, attempting to save changes.");
+
+                var result = await _context.SaveChangesAsync();
+
+                // Логування результату збереження
+                Console.WriteLine($"SaveChangesAsync result: {result}");
+
+                if (result > 0)
+                {
+                    Console.WriteLine("Resume saved successfully.");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("No changes were saved to the database.");
+                    return false;
+                }
             }
             catch (Exception ex)
             {
-                // Логіка обробки помилок (логування, виведення повідомлення тощо)
-                throw new Exception("Unable to save user.", ex);
+                Console.WriteLine($"Error while saving resume: {ex.Message}");
+                return false;
             }
         }
 
-        public void SaveJob(JobModel job)
+
+        // Асинхронний метод для збереження роботи
+        public async Task<bool> SaveJobAsync(JobModel job)
         {
             try
             {
-                _context.Jobs.Add(job);
-                _context.SaveChanges();
+                Console.WriteLine($"Saving job: {job.Title}, Salary: {job.Salary}, Type: {job.Type}");
+                await _context.Jobs.AddAsync(job);
+                await _context.SaveChangesAsync();
+                Console.WriteLine("Job saved successfully.");
+                return true; // Повертаємо true, якщо збереження успішне
             }
             catch (Exception ex)
             {
-                // Логіка обробки помилок (логування, виведення повідомлення тощо)
-                throw new Exception("Unable to save job.", ex);
+                // Логіка обробки помилок
+                Console.WriteLine($"Error: {ex.InnerException?.Message ?? ex.Message}");
+                return false; // Повертаємо false у випадку помилки
             }
-        }
-
-        public void SaveResume(ResumeModel resume)
-        {
-            try
-            {
-                _context.Resumes.Add(resume); // Припускаємо, що у вас є таблиця Resumes у контексті бази даних
-                _context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                // Логіка обробки помилок (логування, виведення повідомлення тощо)
-                throw new Exception("Unable to save resume.", ex);
-            }
-        }
-
-        // Додайте метод для отримання всіх користувачів
-        public List<UserModel> GetAllUsers()
-        {
-            return _context.Users.ToList(); // Повертаємо список усіх користувачів
         }
     }
 }
