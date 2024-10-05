@@ -1,75 +1,92 @@
-﻿using Npgsql;
-using System;
-using System.Collections.Generic;
+﻿using JobSeekerApp.Data;
+using JobSeekerApp.Models;
+using System.Collections.Generic; // Додайте цей using
+using System.Linq;
 
-namespace JobSeekerApp.Data
+namespace JobSeekerApp.Repositories
 {
     public class UserRepository
     {
-        private readonly DatabaseConfig _databaseConfig;
+        private readonly DatabaseContext _context;
 
-        public UserRepository(DatabaseConfig databaseConfig)
+        public UserRepository(DatabaseContext context)
         {
-            _databaseConfig = databaseConfig;
+            _context = context;
         }
 
-        // Метод для отримання списку всіх користувачів
-        public List<UserModel> GetAllUsers()
-        {
-            var users = new List<UserModel>();
-
-            using (var connection = _databaseConfig.GetConnection())
-            {
-                connection.Open(); // Відкриття з'єднання
-                var query = "SELECT * FROM users";
-                using (var command = new NpgsqlCommand(query, connection))
-                {
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            users.Add(new UserModel
-                            {
-                                Id = reader.GetInt32(0),
-                                FirstName = reader.GetString(1),
-                                LastName = reader.GetString(2),
-                                Location = reader.GetString(3),
-                                CurrentSalary = reader.GetDecimal(4),
-                                DesiredSalary = reader.GetDecimal(5),
-                                CurrentJob = reader.GetString(6),
-                                DesiredJob = reader.GetString(7),
-                                PhoneNumber = reader.GetString(8)
-                            });
-                        }
-                    }
-                }
-            }
-
-            return users;
-        }
-
-        // Метод для додавання нового користувача
         public void AddUser(UserModel user)
         {
-            using (var connection = _databaseConfig.GetConnection())
-            {
-                connection.Open(); // Відкриття з'єднання
-                var query = "INSERT INTO users (first_name, last_name, location, current_salary, desired_salary, current_job, desired_job, phone_number) " +
-                            "VALUES (@FirstName, @LastName, @Location, @CurrentSalary, @DesiredSalary, @CurrentJob, @DesiredJob, @PhoneNumber)";
-                using (var command = new NpgsqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@FirstName", user.FirstName);
-                    command.Parameters.AddWithValue("@LastName", user.LastName);
-                    command.Parameters.AddWithValue("@Location", user.Location);
-                    command.Parameters.AddWithValue("@CurrentSalary", user.CurrentSalary);
-                    command.Parameters.AddWithValue("@DesiredSalary", user.DesiredSalary);
-                    command.Parameters.AddWithValue("@CurrentJob", user.CurrentJob);
-                    command.Parameters.AddWithValue("@DesiredJob", user.DesiredJob);
-                    command.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber);
+            _context.Users.Add(user);
+            _context.SaveChanges();
+        }
 
-                    command.ExecuteNonQuery();
-                }
+        public UserModel GetUserById(int userId)
+        {
+            return _context.Users.FirstOrDefault(u => u.Id == userId);
+        }
+
+        public void UpdateUser(UserModel user)
+        {
+            _context.Users.Update(user);
+            _context.SaveChanges();
+        }
+
+        public void DeleteUser(int userId)
+        {
+            var user = GetUserById(userId);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                _context.SaveChanges();
             }
+        }
+
+        public void SaveUser(UserModel user)
+        {
+            try
+            {
+                _context.Users.Add(user);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                // Логіка обробки помилок (логування, виведення повідомлення тощо)
+                throw new Exception("Unable to save user.", ex);
+            }
+        }
+
+        public void SaveJob(JobModel job)
+        {
+            try
+            {
+                _context.Jobs.Add(job);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                // Логіка обробки помилок (логування, виведення повідомлення тощо)
+                throw new Exception("Unable to save job.", ex);
+            }
+        }
+
+        public void SaveResume(ResumeModel resume)
+        {
+            try
+            {
+                _context.Resumes.Add(resume); // Припускаємо, що у вас є таблиця Resumes у контексті бази даних
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                // Логіка обробки помилок (логування, виведення повідомлення тощо)
+                throw new Exception("Unable to save resume.", ex);
+            }
+        }
+
+        // Додайте метод для отримання всіх користувачів
+        public List<UserModel> GetAllUsers()
+        {
+            return _context.Users.ToList(); // Повертаємо список усіх користувачів
         }
     }
 }

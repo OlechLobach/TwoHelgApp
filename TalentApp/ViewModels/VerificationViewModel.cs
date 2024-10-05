@@ -1,26 +1,14 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JobSeekerApp.Data;
+﻿using System.Windows.Input;
+using JobSeekerApp.Commands;
+using JobSeekerApp.Repositories;
 
 namespace JobSeekerApp.ViewModels
 {
-    public class VerificationViewModel : INotifyPropertyChanged
+    public class VerificationViewModel : BaseViewModel
     {
-        private string _phoneNumber;
+        private readonly UserRepository _userRepository;
         private string _verificationCode;
         private bool _isVerified;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public string PhoneNumber
-        {
-            get => _phoneNumber;
-            set
-            {
-                _phoneNumber = value;
-                OnPropertyChanged();
-            }
-        }
 
         public string VerificationCode
         {
@@ -35,28 +23,33 @@ namespace JobSeekerApp.ViewModels
         public bool IsVerified
         {
             get => _isVerified;
-            private set
+            set
             {
                 _isVerified = value;
                 OnPropertyChanged();
             }
         }
 
-        public void VerifyCode(string inputCode)
+        public ICommand VerifyCommand { get; private set; }
+
+        public VerificationViewModel(UserRepository userRepository)
         {
-            if (inputCode == _verificationCode)
+            _userRepository = userRepository;
+            VerifyCommand = new RelayCommand(OnVerify);
+        }
+
+        private void OnVerify(object parameter)
+        {
+            // Логіка верифікації, наприклад, перевірка коду
+            if (VerificationCode == "123456") // Тут ви повинні реалізувати свою логіку
             {
                 IsVerified = true;
             }
             else
             {
+                // Повідомлення про невірний код
                 IsVerified = false;
             }
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿using JobSeekerApp.Data;
-using JobSeekerApp.ViewModels;
-using System.Windows;
+﻿using System.Windows;
+using JobSeekerApp.Repositories; // Додайте простір імен для UserRepository
+using JobSeekerApp.Data; // Додайте простір імен для DatabaseContext
 
-namespace JobSeekerApp
+namespace JobSeekerApp.Views
 {
     public partial class MainWindow : Window
     {
@@ -10,16 +10,14 @@ namespace JobSeekerApp
         {
             InitializeComponent();
 
-            // Ваш рядок підключення до бази даних
-            string connectionString = "Host=aws-0-eu-central-1.pooler.supabase.com;Port=6543;Username=postgres.tnffjagxwqxtsvebuimo;Password=My_coursed_project;Database=postgres";
-            var databaseConfig = new DatabaseConfig(connectionString);
+            // Створіть контекст бази даних
+            var databaseContext = new DatabaseContext();
 
-            // Тепер ви можете передавати databaseConfig у ваші ViewModel
-            var registrationViewModel = new RegistrationViewModel(databaseConfig);
-            var userListViewModel = new UserListViewModel(databaseConfig);
+            // Створіть екземпляр UserRepository
+            var userRepository = new UserRepository(databaseContext);
 
-            // Призначте ViewModel у DataContext
-            this.DataContext = registrationViewModel; // або userListViewModel в залежності від контексту
+            // Перейдіть на сторінку завантаження резюме з переданим userRepository
+            MainFrame.Navigate(new ResumeUploadView(userRepository));
         }
     }
 }

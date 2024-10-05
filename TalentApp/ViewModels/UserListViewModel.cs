@@ -1,23 +1,28 @@
 ﻿using System.Collections.ObjectModel;
-using JobSeekerApp.Data;
+using JobSeekerApp.Repositories;
+using JobSeekerApp.Models;
 
 namespace JobSeekerApp.ViewModels
 {
-    public class UserListViewModel
+    public class UserListViewModel : BaseViewModel
     {
-        private UserRepository _userRepository;
+        private readonly UserRepository _userRepository;
         public ObservableCollection<UserModel> Users { get; private set; }
 
-        public UserListViewModel(DatabaseConfig databaseConfig)
+        public UserListViewModel(UserRepository userRepository)
         {
-            _userRepository = new UserRepository(databaseConfig);
+            _userRepository = userRepository;
+            Users = new ObservableCollection<UserModel>();
             LoadUsers();
         }
 
         private void LoadUsers()
         {
-            var usersFromDb = _userRepository.GetAllUsers();
-            Users = new ObservableCollection<UserModel>(usersFromDb);
+            var users = _userRepository.GetAllUsers();
+            foreach (var user in users)
+            {
+                Users.Add(user);
+            }
         }
     }
 }

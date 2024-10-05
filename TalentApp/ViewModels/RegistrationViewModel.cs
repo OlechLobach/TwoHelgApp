@@ -1,68 +1,135 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JobSeekerApp.Data;
+﻿using System.Windows.Input;
+using JobSeekerApp.Commands;
+using JobSeekerApp.Models;
+using JobSeekerApp.Repositories;
 
 namespace JobSeekerApp.ViewModels
 {
-    public class RegistrationViewModel : INotifyPropertyChanged
+    public class RegistrationViewModel : BaseViewModel
     {
-        private string _firstName;
-        private string _lastName;
-        private string _location;
-        private UserRepository _userRepository;
+        private readonly UserRepository _userRepository;
+        private string _currentStep;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        // Змінні для зберігання інформації про користувача
+        private UserModel _userModel;
+
+        public event Action RegistrationCompleted; // Додана подія для завершення реєстрації
+
+        public string CurrentStep
+        {
+            get => _currentStep;
+            set
+            {
+                _currentStep = value;
+                OnPropertyChanged();
+            }
+        }
 
         public string FirstName
         {
-            get => _firstName;
+            get => _userModel.FirstName;
             set
             {
-                _firstName = value;
+                _userModel.FirstName = value;
                 OnPropertyChanged();
             }
         }
 
         public string LastName
         {
-            get => _lastName;
+            get => _userModel.LastName;
             set
             {
-                _lastName = value;
+                _userModel.LastName = value;
                 OnPropertyChanged();
             }
         }
 
         public string Location
         {
-            get => _location;
+            get => _userModel.Location;
             set
             {
-                _location = value;
+                _userModel.Location = value;
                 OnPropertyChanged();
             }
         }
 
-        public RegistrationViewModel(DatabaseConfig databaseConfig)
+        public string CurrentJob
         {
-            _userRepository = new UserRepository(databaseConfig);
-        }
-
-        public void RegisterUser()
-        {
-            var user = new UserModel
+            get => _userModel.CurrentJob;
+            set
             {
-                FirstName = _firstName,
-                LastName = _lastName,
-                Location = _location
-            };
-
-            _userRepository.AddUser(user);
+                _userModel.CurrentJob = value;
+                OnPropertyChanged();
+            }
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public string DesiredJob
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            get => _userModel.DesiredJob;
+            set
+            {
+                _userModel.DesiredJob = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand NextCommand { get; private set; }
+        public ICommand PreviousCommand { get; private set; }
+
+        public RegistrationViewModel(UserRepository userRepository)
+        {
+            _userRepository = userRepository;
+            CurrentStep = "ResumeUpload"; // Початок з кроку завантаження резюме
+            _userModel = new UserModel(); // Ініціалізація моделі користувача
+
+            NextCommand = new RelayCommand(OnNext);
+            PreviousCommand = new RelayCommand(OnPrevious);
+        }
+
+        private void OnNext(object parameter)
+        {
+            if (CurrentStep == "ResumeUpload")
+            {
+                // Логіка для завантаження резюме
+                CurrentStep = "PersonalInfo";
+            }
+            else if (CurrentStep == "PersonalInfo")
+            {
+                // Зберігаємо особисту інформацію користувача
+                _userRepository.SaveUser(_userModel); // Заміна на SaveUser
+                CurrentStep = "CurrentJob";
+            }
+            else if (CurrentStep == "CurrentJob")
+            {
+                // Зберігаємо дані про поточну роботу
+                _userRepository.SaveUser(_userModel); // Заміна на SaveUser
+                CurrentStep = "DesiredJob";
+            }
+            else if (CurrentStep == "DesiredJob")
+            {
+                // Завершуємо реєстрацію
+                _userRepository.SaveUser(_userModel); // Заміна на SaveUser
+                RegistrationCompleted?.Invoke(); // Виклик події завершення реєстрації
+            }
+        }
+
+        private void OnPrevious(object parameter)
+        {
+            // Логіка для повернення на попередній крок
+            if (CurrentStep == "PersonalInfo")
+            {
+                CurrentStep = "ResumeUpload";
+            }
+            else if (CurrentStep == "CurrentJob")
+            {
+                CurrentStep = "PersonalInfo";
+            }
+            else if (CurrentStep == "DesiredJob")
+            {
+                CurrentStep = "CurrentJob";
+            }
         }
     }
 }

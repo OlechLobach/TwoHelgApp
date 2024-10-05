@@ -1,19 +1,13 @@
-﻿using Npgsql;
+﻿using Microsoft.EntityFrameworkCore; 
+using Npgsql.EntityFrameworkCore.PostgreSQL; 
 
 namespace JobSeekerApp.Data
 {
     public class DatabaseConfig
     {
-        private readonly string _connectionString;
-
-        public DatabaseConfig(string connectionString)
+        public static void Configure(DbContextOptionsBuilder optionsBuilder)
         {
-            _connectionString = connectionString;
-        }
-
-        public NpgsqlConnection GetConnection()
-        {
-            return new NpgsqlConnection(_connectionString);
+            optionsBuilder.UseNpgsql("Host=aws-0-eu-central-1.pooler.supabase.com;Port=6543;Username=postgres;Password=My_coursed_project;Database=postgres");
         }
     }
 }
