@@ -1,19 +1,20 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 
 namespace JobSeekerApp.Services
 {
     public class PhoneVerificationService
     {
-        // Метод для верифікації коду
-        public bool VerifyCode(string enteredCode)
+        public async Task SendVerificationCode(string phoneNumber)
         {
-            // Тут можна додати логіку для перевірки коду, якщо потрібно
-            // Наприклад, ви можете зберігати код у пам'яті або використовувати його для подальшої перевірки
-            if (enteredCode.Length == 6 && int.TryParse(enteredCode, out _))
+            await Task.Run(() =>
             {
-                return true; // Якщо код 6-значний, повертаємо true
-            }
-            return false; // Інакше повертаємо false
+                System.Console.WriteLine($"SMS sent to {phoneNumber} with verification code.");
+            });
+        }
+
+        public bool VerifyCode(string inputCode, string actualCode)
+        {
+            return inputCode == actualCode; 
         }
     }
 }

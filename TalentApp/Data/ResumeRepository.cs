@@ -7,7 +7,6 @@ namespace JobSeekerApp.Data
     {
         private readonly string _connectionString = "Host=aws-0-eu-central-1.pooler.supabase.com;Port=6543;Username=postgres;Password=My_coursed_project;Database=postgres";
 
-        // Метод для збереження файлу резюме у базі даних
         public void UploadResume(int userId, byte[] resumeFile)
         {
             using (var connection = new NpgsqlConnection(_connectionString))
@@ -27,7 +26,6 @@ namespace JobSeekerApp.Data
             }
         }
 
-        // Метод для отримання файлу резюме користувача
         public byte[] GetResume(int userId)
         {
             using (var connection = new NpgsqlConnection(_connectionString))

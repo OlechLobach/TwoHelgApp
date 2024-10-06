@@ -1,18 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
-namespace JobSeekerApp.Models
+namespace JobSeekerApp.Data
 {
     public class UserModel
     {
-        [Key] // Вказуємо, що це первинний ключ
-        public int Id { get; set; } // Унікальний ідентифікатор користувача
+        public int Id { get; set; } 
+        public string FirstName { get; set; } 
+        public string LastName { get; set; }
+        public string Location { get; set; } 
+        public string PhoneNumber { get; set; } 
 
-        public string FirstName { get; set; } // Ім'я користувача
-        public string LastName { get; set; } // Прізвище користувача
-        public string Location { get; set; } // Місце розташування
-        public string PhoneNumber { get; set; } // Номер телефону
-
-        public string CurrentJob { get; set; } // Поточне місце роботи
-        public string DesiredJob { get; set; } // Бажане місце роботи
+        public ICollection<RegistrationModel> Registrations { get; set; } 
+        public ICollection<SalaryModel> Salaries { get; set; } 
+        public ICollection<JobModel> Jobs { get; set; } 
     }
 }

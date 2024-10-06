@@ -1,14 +1,11 @@
-﻿using System.Windows.Input;
-using JobSeekerApp.Commands;
-using JobSeekerApp.Repositories;
+﻿using JobSeekerApp.Commands;
+using System.Windows.Input;
 
 namespace JobSeekerApp.ViewModels
 {
     public class VerificationViewModel : BaseViewModel
     {
-        private readonly UserRepository _userRepository;
         private string _verificationCode;
-        private bool _isVerified;
 
         public string VerificationCode
         {
@@ -20,36 +17,16 @@ namespace JobSeekerApp.ViewModels
             }
         }
 
-        public bool IsVerified
+        public ICommand VerifyCommand { get; set; }
+
+        public VerificationViewModel()
         {
-            get => _isVerified;
-            set
-            {
-                _isVerified = value;
-                OnPropertyChanged();
-            }
+            VerifyCommand = new RelayCommand(VerifyCode);
         }
 
-        public ICommand VerifyCommand { get; private set; }
-
-        public VerificationViewModel(UserRepository userRepository)
+        private void VerifyCode(object parameter) 
         {
-            _userRepository = userRepository;
-            VerifyCommand = new RelayCommand(OnVerify);
-        }
-
-        private void OnVerify(object parameter)
-        {
-            // Логіка верифікації, наприклад, перевірка коду
-            if (VerificationCode == "123456") // Тут ви повинні реалізувати свою логіку
-            {
-                IsVerified = true;
-            }
-            else
-            {
-                // Повідомлення про невірний код
-                IsVerified = false;
-            }
+            System.Console.WriteLine($"Verification code entered: {VerificationCode}");
         }
     }
 }

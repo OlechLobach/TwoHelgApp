@@ -1,11 +1,10 @@
 ﻿<Window x:Class="JobSeekerApp.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Job Seeker App" Height="450" Width="800"
-        Background="#2D2D2D">
-    <!-- Темний фон для вікна -->
+        Title="MainWindow" Height="450" Width="800"
+        Background="#1E1E1E">
+   
     <Grid>
-        <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden" Background="#2D2D2D" />
-        <!-- Темний фон для фрейму -->
+        <Frame Name="MainFrame" NavigationUIVisibility="Hidden" />
     </Grid>
 </Window>

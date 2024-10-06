@@ -1,27 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using JobSeekerApp.Models;
-using JobSeekerApp.Repositories;
+using JobSeekerApp.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace JobSeekerApp.Services
 {
     public class JobService
     {
-        private readonly JobRepository _jobRepository;
+        private readonly DatabaseContext _context;
 
-        public JobService(JobRepository jobRepository)
+        public JobService(DatabaseContext context)
         {
-            _jobRepository = jobRepository;
+            _context = context;
         }
 
-        public async Task<bool> AddJobAsync(JobModel job)
+        public async Task<List<JobModel>> GetAllJobsAsync()
         {
-            return await _jobRepository.AddJobAsync(job);
+            return await _context.Jobs.ToListAsync();
         }
 
-        public async Task<IEnumerable<JobModel>> GetAllJobsAsync()
+        
+        public async Task AddJobAsync(JobModel job)
         {
-            return await _jobRepository.GetAllJobsAsync();
+            await _context.Jobs.AddAsync(job);
+            await _context.SaveChangesAsync(); 
         }
     }
 }

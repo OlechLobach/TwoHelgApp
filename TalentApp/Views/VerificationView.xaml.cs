@@ -1,40 +1,45 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using JobSeekerApp.Repositories; // Додаємо простір імен для UserRepository
 
 namespace JobSeekerApp.Views
 {
-    public partial class VerificationView : UserControl
+    public partial class VerificationView : Page
     {
-        private readonly UserRepository _userRepository;
-
-        public VerificationView(UserRepository userRepository) // Передаємо UserRepository у конструктор
+        public VerificationView()
         {
             InitializeComponent();
-            _userRepository = userRepository;
+        }
+
+        private void SendCodeButton_Click(object sender, RoutedEventArgs e)
+        {
+            string phoneNumber = PhoneNumberTextBox.Text;
+
+            if (string.IsNullOrEmpty(phoneNumber))
+            {
+                MessageBox.Show("Please enter a phone number.");
+                return;
+            }
+
+            MessageBox.Show($"Verification code sent to: {phoneNumber}");
+
+            VerificationPanel.Visibility = Visibility.Visible;
         }
 
         private void VerifyButton_Click(object sender, RoutedEventArgs e)
         {
-            // Валідація введених даних
-            if (string.IsNullOrWhiteSpace(PhoneNumberTextBox.Text) || string.IsNullOrWhiteSpace(VerificationCodeTextBox.Text))
+            string verificationCode = VerificationCodeTextBox.Text;
+
+            if (string.IsNullOrEmpty(verificationCode))
             {
-                MessageBox.Show("Please fill in all the fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Please enter the verification code.");
                 return;
             }
 
-            // Логіка верифікації (наприклад, код 6-значний)
-            if (VerificationCodeTextBox.Text.Length == 6)
-            {
-                MessageBox.Show("Verification successful!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+          
+            MessageBox.Show("Verification successful!");
 
-                // Перекидання до фінальної сторінки після верифікації
-                ((MainWindow)Window.GetWindow(this)).MainFrame.Navigate(new FinishView(_userRepository)); // Передаємо UserRepository
-            }
-            else
-            {
-                MessageBox.Show("Invalid verification code. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            mainWindow?.NavigateTo<FinishView>(); 
         }
     }
 }

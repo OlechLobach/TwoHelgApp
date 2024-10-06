@@ -1,33 +1,22 @@
-﻿using System;
-using System.Threading.Tasks;
-using JobSeekerApp.Models;
-using JobSeekerApp.Repositories;
+﻿using System.Threading.Tasks;
+using JobSeekerApp.Data;
 
 namespace JobSeekerApp.Services
 {
     public class RegistrationService
     {
-        private readonly UserRepository _userRepository;
+        private readonly DatabaseContext _context;
 
-        public RegistrationService(UserRepository userRepository)
+        public RegistrationService(DatabaseContext context)
         {
-            _userRepository = userRepository;
+            _context = context;
         }
 
-        public async Task<bool> RegisterUserAsync(UserModel user)
+        public async Task RegisterUserAsync(UserModel user, RegistrationModel registration)
         {
-            try
-            {
-                // Логіка для реєстрації користувача
-                await _userRepository.AddUserAsync(user);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                // Обробка помилки
-                Console.WriteLine($"Error registering user: {ex.Message}");
-                return false;
-            }
+            await _context.Users.AddAsync(user);
+            await _context.Registrations.AddAsync(registration);
+            await _context.SaveChangesAsync(); 
         }
     }
 }

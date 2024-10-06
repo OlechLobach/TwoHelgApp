@@ -1,18 +1,19 @@
-﻿<UserControl x:Class="JobSeekerApp.Views.VerificationView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Height="300" Width="400">
+﻿<Page x:Class="JobSeekerApp.Views.VerificationView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="VerificationView">
     <Grid>
-        <StackPanel Margin="20">
-            <TextBlock Text="Phone Verification" FontSize="24" Margin="0,0,0,20"/>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+            <TextBlock Text="Enter a phone number for verification:" FontSize="16" Margin="10"/>
+            <TextBox x:Name="PhoneNumberTextBox" Width="300" Margin="10"/>
 
-            <TextBlock Text="Phone Number" />
-            <TextBox x:Name="PhoneNumberTextBox" Width="300" Margin="0,0,0,10"/>
+            <Button Content="send code" Width="150" Height="40" Click="SendCodeButton_Click" Margin="10"/>
 
-            <TextBlock Text="Verification Code" />
-            <TextBox x:Name="VerificationCodeTextBox" Width="300" Margin="0,0,0,20"/>
-
-            <Button Content="Verify" Width="100" Click="VerifyButton_Click"/>
+            <StackPanel x:Name="VerificationPanel" Visibility="Collapsed" Margin="10">
+                <TextBlock Text="Enter the verification number:" FontSize="16"/>
+                <TextBox x:Name="VerificationCodeTextBox" Width="300" Margin="10"/>
+                <Button Content="to verify" Width="150" Height="40" Click="VerifyButton_Click" Margin="10"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
-</UserControl>
+</Page>

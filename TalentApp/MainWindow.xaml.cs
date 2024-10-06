@@ -1,23 +1,31 @@
 ﻿using System.Windows;
-using JobSeekerApp.Repositories; // Додайте простір імен для UserRepository
-using JobSeekerApp.Data; // Додайте простір імен для DatabaseContext
+using System.Windows.Controls;
+using JobSeekerApp.Data;
 
 namespace JobSeekerApp.Views
 {
     public partial class MainWindow : Window
     {
+        private readonly DatabaseContext _dbContext;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            // Створіть контекст бази даних
-            var databaseContext = new DatabaseContext();
+            _dbContext = new DatabaseContext(DatabaseConfig.GetOptions("your_connection_string"));
 
-            // Створіть екземпляр UserRepository
-            var userRepository = new UserRepository(databaseContext);
+            NavigateTo<ResumeUploadView>();
+        }
 
-            // Перейдіть на сторінку завантаження резюме з переданим userRepository
-            MainFrame.Navigate(new ResumeUploadView(userRepository));
+        public void NavigateTo<T>() where T : Page, new()
+        {
+            var page = new T();
+            MainFrame.Content = page;
+        }
+
+        private void ResumeUpload_Click(object sender, RoutedEventArgs e)
+        {
+            NavigateTo<ResumeUploadView>();
         }
     }
 }

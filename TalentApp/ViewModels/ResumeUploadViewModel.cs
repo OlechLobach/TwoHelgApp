@@ -1,94 +1,32 @@
-﻿using System.Windows.Input;
-using JobSeekerApp.Commands;
-using Microsoft.Win32;
-using System.IO;
-using JobSeekerApp.Repositories;
-using JobSeekerApp.Models;
-using System.Windows; // Необхідно для використання MessageBox
-using System.Threading.Tasks; // Необхідно для використання Task
+﻿using JobSeekerApp.Commands;
+using System.Windows.Input;
 
 namespace JobSeekerApp.ViewModels
 {
     public class ResumeUploadViewModel : BaseViewModel
     {
-        private readonly UserRepository _userRepository;
-        private int _currentUserId; // Зберігаємо ідентифікатор користувача
-        private string _resumeFilePath;
+        private string _resumePath;
 
-        public string ResumeFilePath
+        public string ResumePath
         {
-            get => _resumeFilePath;
+            get => _resumePath;
             set
             {
-                _resumeFilePath = value;
+                _resumePath = value;
                 OnPropertyChanged();
             }
         }
 
-        public ICommand UploadCommand { get; private set; }
-        public ICommand BrowseCommand { get; private set; }
+        public ICommand UploadResumeCommand { get; set; } 
 
-        public ResumeUploadViewModel(UserRepository userRepository, int currentUserId)
+        public ResumeUploadViewModel()
         {
-            _userRepository = userRepository;
-            _currentUserId = currentUserId; // Присвоюємо ідентифікатор користувача
-            UploadCommand = new RelayCommand(async (param) => await OnUpload(param)); // Виклик асинхронного методу
-            BrowseCommand = new RelayCommand(OnBrowse);
+            UploadResumeCommand = new RelayCommand(UploadResume);
         }
 
-        private void OnBrowse(object parameter)
+        private void UploadResume(object parameter)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
-            {
-                Filter = "Resume Files (*.pdf;*.doc;*.docx;*.txt;*.rtf)|*.pdf;*.doc;*.docx;*.txt;*.rtf", // Підтримуються формати
-                Title = "Select a Resume File"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                ResumeFilePath = openFileDialog.FileName;
-            }
-        }
-
-        private async Task OnUpload(object parameter)
-        {
-            if (!string.IsNullOrEmpty(ResumeFilePath))
-            {
-                try
-                {
-                    // Логіка для завантаження резюме
-                    byte[] resumeData = File.ReadAllBytes(ResumeFilePath);
-
-                    var resumeModel = new ResumeModel
-                    {
-                        UserId = _currentUserId,
-                        FileName = Path.GetFileName(ResumeFilePath),
-                        ResumeFile = resumeData
-                    };
-
-                    // Логування перед викликом методу
-                    Console.WriteLine($"Attempting to save resume for UserId: {resumeModel.UserId}, FileName: {resumeModel.FileName}");
-
-                    // Виклик методу репозиторію для збереження резюме
-                    bool success = await _userRepository.SaveResumeAsync(resumeModel);
-                    if (success)
-                    {
-                        MessageBox.Show("Резюме успішно завантажено!", "Успіх", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Не вдалося завантажити резюме.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Сталася помилка при завантаженні резюме: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            else
-            {
-                MessageBox.Show("Будь ласка, виберіть файл резюме перед завантаженням.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            System.Console.WriteLine($"Resume uploaded: {ResumePath}");
         }
     }
 }

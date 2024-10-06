@@ -1,22 +1,30 @@
-﻿using JobSeekerApp.Models;
-using JobSeekerApp.Repositories;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using JobSeekerApp.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace JobSeekerApp.Services
 {
     public class UserService
     {
-        private readonly UserRepository _userRepository;
+        private readonly DatabaseContext _context;
 
-        public UserService(UserRepository userRepository)
+        public UserService(DatabaseContext context)
         {
-            _userRepository = userRepository;
+            _context = context;
         }
 
-        // Метод для збереження резюме
-        public async Task<bool> SaveResumeAsync(ResumeModel resume)
+        
+        public async Task<List<UserModel>> GetAllUsersAsync()
         {
-            return await _userRepository.SaveResumeAsync(resume);
+            return await _context.Users.ToListAsync();
+        }
+
+        public async Task<List<ResumeModel>> GetUserResumesAsync(int userId)
+        {
+            return await _context.Resumes
+                .Where(r => r.UserId == userId)
+                .ToListAsync();
         }
     }
 }

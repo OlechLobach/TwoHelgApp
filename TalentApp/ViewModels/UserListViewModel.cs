@@ -1,29 +1,44 @@
-﻿using System.Collections.ObjectModel;
-using System.Threading.Tasks; // Додайте директиву using для асинхронного програмування
-using JobSeekerApp.Repositories;
-using JobSeekerApp.Models;
+﻿using JobSeekerApp.Commands;
+using JobSeekerApp.Data;
+using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace JobSeekerApp.ViewModels
 {
     public class UserListViewModel : BaseViewModel
     {
-        private readonly UserRepository _userRepository;
-        public ObservableCollection<UserModel> Users { get; private set; }
+        public ObservableCollection<UserModel> Users { get; set; } 
 
-        public UserListViewModel(UserRepository userRepository)
+        public ICommand LoadUsersCommand { get; set; } 
+
+        public UserListViewModel()
         {
-            _userRepository = userRepository;
             Users = new ObservableCollection<UserModel>();
-            LoadUsersAsync(); // Виклик асинхронного методу
+            LoadUsersCommand = new RelayCommand(LoadUsers); 
         }
 
-        private async Task LoadUsersAsync() // Зробіть метод асинхронним
+        private async void LoadUsers(object parameter) 
         {
-            var users = await _userRepository.GetAllUsersAsync(); // Використання асинхронного методу
+            await LoadUsersAsync(); 
+        }
+
+        private async Task LoadUsersAsync()
+        {
+            
+            var users = await GetUsersFromService(); 
+            Users.Clear(); 
             foreach (var user in users)
             {
                 Users.Add(user);
             }
+        }
+
+        private Task<List<UserModel>> GetUsersFromService()
+        {
+           
+            return Task.FromResult(new List<UserModel>());
         }
     }
 }

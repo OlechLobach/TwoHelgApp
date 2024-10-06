@@ -1,39 +1,29 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using JobSeekerApp.Models;
-using JobSeekerApp.Repositories; // Додайте простір імен для UserRepository
 
 namespace JobSeekerApp.Views
 {
-    public partial class PersonalInfoView : UserControl
+    public partial class PersonalInfoView : Page
     {
-        private readonly UserRepository _userRepository; // Зберігання посилання на UserRepository
-
-        public PersonalInfoView(UserRepository userRepository) // Додайте параметр UserRepository
+        public PersonalInfoView()
         {
             InitializeComponent();
-            _userRepository = userRepository; // Збережіть посилання на UserRepository
         }
 
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
-            // Валідація введених даних
-            if (string.IsNullOrWhiteSpace(FirstNameTextBox.Text) || string.IsNullOrWhiteSpace(LastNameTextBox.Text) || string.IsNullOrWhiteSpace(LocationTextBox.Text))
+            string firstName = FirstNameTextBox.Text;
+            string lastName = LastNameTextBox.Text;
+            string location = LocationTextBox.Text;
+
+            if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(location))
             {
-                MessageBox.Show("Please fill in all the fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Please, fill in all fields.");
                 return;
             }
 
-            // Збереження інформації про особисті дані
-            var personalInfo = new UserModel
-            {
-                FirstName = FirstNameTextBox.Text,
-                LastName = LastNameTextBox.Text,
-                Location = LocationTextBox.Text
-            };
-
-            // Перехід до наступної сторінки, передаючи UserRepository
-            ((MainWindow)Window.GetWindow(this)).MainFrame.Navigate(new CurrentJobView(_userRepository));
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            mainWindow?.NavigateTo<CurrentJobView>();
         }
     }
 }

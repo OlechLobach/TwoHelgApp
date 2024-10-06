@@ -1,39 +1,30 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using JobSeekerApp.Models;
-using JobSeekerApp.Repositories; // Додаємо простір імен для UserRepository
 
 namespace JobSeekerApp.Views
 {
-    public partial class DesiredJobView : UserControl
+    public partial class DesiredJobView : Page
     {
-        private readonly UserRepository _userRepository;
-
-        public DesiredJobView(UserRepository userRepository) // Передаємо UserRepository у конструктор
+        public DesiredJobView()
         {
             InitializeComponent();
-            _userRepository = userRepository;
         }
 
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
-            // Валідація введених даних
-            if (string.IsNullOrWhiteSpace(DesiredJobTitleTextBox.Text) || string.IsNullOrWhiteSpace(DesiredSalaryTextBox.Text))
+            // Отримання введених даних
+            string desiredJob = DesiredJobTextBox.Text;
+            string desiredSalary = (DesiredSalaryComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+            if (string.IsNullOrEmpty(desiredJob) || string.IsNullOrEmpty(desiredSalary))
             {
-                MessageBox.Show("Please fill in all the fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Please, fill in all fields.");
                 return;
             }
 
-            // Збереження бажаної роботи та зарплати
-            var desiredJobInfo = new JobModel
-            {
-                Title = DesiredJobTitleTextBox.Text, // Використовуємо властивість Title замість JobTitle
-                Salary = decimal.Parse(DesiredSalaryTextBox.Text), // Перевірка та конвертація введених даних
-                Type = "Desired" // Вказуємо тип роботи як "бажана"
-            };
 
-            // Перехід до наступної сторінки - VerificationView
-            ((MainWindow)Window.GetWindow(this)).MainFrame.Navigate(new VerificationView(_userRepository)); // Передаємо UserRepository
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            mainWindow?.NavigateTo<VerificationView>(); 
         }
     }
 }
